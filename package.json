@@ -1,11 +1,10 @@
 {
   "name": "ng2-img-map",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Responsive image mapping interface for Angular 2",
   "main": "ng2-img-map.js",
   "scripts": {
     "dev": "tsc --watch",
-    "postinstall": "typings install",
     "prepublish": "typings install && tsc"
   },
   "repository": {
@@ -38,5 +37,6 @@
   },
   "peerDependencies": {
     "@angular/core": "^2.0.0-rc.4"
-  }
+  },
+  "typings": "./ng2-img-map.d.ts"
 }

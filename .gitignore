@@ -1,3 +1,7 @@
+# Javascript
+*.js
+*.js.map
+
 # Node
 node_modules/
 npm-debug.log
@@ -12,4 +16,5 @@ ehthumbs.db
 Thumbs.db
 
 # Typings
+*.d.ts
 typings/
