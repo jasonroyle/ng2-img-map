@@ -75,7 +75,7 @@ onMark(marker: Position) {
   <div class="form-group">
     <input
       placeholder="Name"
-			[(ngModel)]="name"
+      [(ngModel)]="name"
     >
   </div>
 </div>
