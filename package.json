@@ -1,0 +1,42 @@
+{
+  "name": "ng2-img-map",
+  "version": "0.0.1",
+  "description": "Responsive image mapping interface for Angular 2",
+  "main": "ng2-img-map.js",
+  "scripts": {
+    "dev": "tsc --watch",
+    "postinstall": "typings install",
+    "prepublish": "typings install && tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jasonroyle/ng2-img-map.git"
+  },
+  "keywords": [
+    "angular",
+    "angular2",
+    "ng2",
+    "image",
+    "img",
+    "map",
+    "mark",
+    "marker",
+    "point",
+    "position",
+    "heat"
+  ],
+  "author": "jasonroyle",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jasonroyle/ng2-img-map/issues"
+  },
+  "homepage": "https://github.com/jasonroyle/ng2-img-map#readme",
+  "devDependencies": {
+    "es6-shim": "^0.35.1",
+    "typescript": "^1.8.10",
+    "typings": "^1.3.2"
+  },
+  "peerDependencies": {
+    "@angular/core": "^2.0.0-rc.4"
+  }
+}
