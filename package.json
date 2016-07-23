@@ -5,7 +5,6 @@
   "main": "ng2-img-map.js",
   "scripts": {
     "dev": "tsc --watch",
-    "postinstall": "typings install",
     "prepublish": "typings install && tsc"
   },
   "repository": {
