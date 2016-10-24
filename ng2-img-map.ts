@@ -152,35 +152,37 @@ export class ImgMapComponent {
    * Clears the canvas and draws the markers.
    */
   private draw() {
-    const canvas: HTMLCanvasElement = this.canvas.nativeElement;
-    const container: HTMLDivElement = this.container.nativeElement;
-    const image: HTMLImageElement = this.image.nativeElement;
-    const height = image.clientHeight;
-    const width = image.clientWidth;
-    this.renderer.setElementAttribute(canvas, 'height', `${height}`);
-    this.renderer.setElementAttribute(canvas, 'width', `${width}`);
-    this.renderer.setElementStyle(container, 'height', `${height}px`);
-    const context = canvas.getContext('2d');
-    context.clearRect(0, 0, width, height);
-    this.pixels = [];
-    this.markers.forEach(marker => {
-      this.pixels.push(this.markerToPixel(marker));
-    });
-    if (this.marker) {
-      this.pixel = this.markerToPixel(this.marker);
-    }
-    this.pixels.forEach((pixel, index) => {
-      if (this.markerActive === index) {
-        this.drawMarker(pixel, 'active');
-      } else if (this.markerHover === index) {
-        this.drawMarker(pixel, 'hover');
-      } else {
-        this.drawMarker(pixel);
+    window.setTimeout(() => {
+      const canvas: HTMLCanvasElement = this.canvas.nativeElement;
+      const container: HTMLDivElement = this.container.nativeElement;
+      const image: HTMLImageElement = this.image.nativeElement;
+      const height = image.clientHeight;
+      const width = image.clientWidth;
+      this.renderer.setElementAttribute(canvas, 'height', `${height}`);
+      this.renderer.setElementAttribute(canvas, 'width', `${width}`);
+      this.renderer.setElementStyle(container, 'height', `${height}px`);
+      const context = canvas.getContext('2d');
+      context.clearRect(0, 0, width, height);
+      this.pixels = [];
+      this.markers.forEach(marker => {
+        this.pixels.push(this.markerToPixel(marker));
+      });
+      if (this.marker) {
+        this.pixel = this.markerToPixel(this.marker);
       }
-    });
-    if (this.pixel) {
-      this.drawMarker(this.pixel, 'active');
-    }
+      this.pixels.forEach((pixel, index) => {
+        if (this.markerActive === index) {
+          this.drawMarker(pixel, 'active');
+        } else if (this.markerHover === index) {
+          this.drawMarker(pixel, 'hover');
+        } else {
+          this.drawMarker(pixel);
+        }
+      });
+      if (this.pixel) {
+        this.drawMarker(this.pixel, 'active');
+      }
+    }, 1);
   }
 
   /**
