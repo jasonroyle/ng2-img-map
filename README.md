@@ -2,6 +2,8 @@
 
 Responsive image mapping interface for Angular 2.
 
+[Demo](https://plnkr.co/edit/Xwn1Z8HLDgQRwWwdXfoT?p=preview)
+
 ## Markers
 
 Markers can be placed on the image by inputting an array of co-ordinates. The co-ordinate values of a marker represent percentages of the dimensions of the image.
