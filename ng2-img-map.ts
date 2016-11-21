@@ -2,11 +2,6 @@ import {
   Component, ElementRef, EventEmitter, Input, Output, Renderer, ViewChild
 } from '@angular/core';
 
-export interface Position {
-  x: number;
-  y: number;
-}
-
 @Component({
   selector: 'img-map',
   styles: [
@@ -54,57 +49,42 @@ export class ImgMapComponent {
   @ViewChild('image')
   private image: ElementRef;
 
-  @Input('drawOnChange')
-  public set setDrawOnChange(changed) {
-    this.draw();
-  }
-
-  @Input('markerRadius')
-  public set setMarkerRadius(markerRadius: number) {
-    this.markerRadius = markerRadius;
-  }
-
   @Input('markers')
-  public set setMarkers(markers: Position[]) {
+  set setMarkers(markers: number[][]) {
     this.markerActive = null;
     this.markerHover = null;
     this.markers = markers;
-    this.setPixels();
     this.draw();
   }
 
   /**
+   * Radius of the markers.
+   */
+  @Input()
+  markerRadius: number = 10;
+
+  /**
    * Image source URL.
    */
-  @Input('src')
-  public src: string;
+  @Input()
+  src: string;
 
   /**
    * On change event.
    */
   @Output('change')
-  public changeEvent = new EventEmitter<Position>();
+  changeEvent = new EventEmitter<number[]>();
 
   /**
    * On mark event.
    */
   @Output('mark')
-  public markEvent = new EventEmitter<Position>();
-
-  /**
-   * New marker.
-   */
-  private marker: Position;
+  markEvent = new EventEmitter<number[]>();
 
   /**
    * Collection of markers.
    */
-  private markers: Position[] = [];
-
-  /**
-   * Index of the active state marker.
-   */
-  private markerActive: number = null;
+  private markers: number[][] = [];
 
   /**
    * Index of the hover state marker.
@@ -112,23 +92,18 @@ export class ImgMapComponent {
   private markerHover: number = null;
 
   /**
-   * Radius of the markers.
-   */
-  private markerRadius = 10;
-
-  /**
-   * Pixel position of the new marker.
-   */
-  private pixel: Position;
-
-  /**
    * Pixel position of markers.
    */
-  private pixels: Position[] = [];
+  private pixels: number[][] = [];
 
-  public constructor(private renderer: Renderer) {}
+  /**
+   * Index of the active state marker.
+   */
+  markerActive: number;
 
-  private change() {
+  constructor(private renderer: Renderer) {}
+
+  private change(): void {
     if (this.markerActive === null) {
       this.changeEvent.emit(null);
     } else {
@@ -140,58 +115,21 @@ export class ImgMapComponent {
   /**
    * Get the cursor position relative to the canvas.
    */
-  private cursor(event: MouseEvent): Position {
+  private cursor(event: MouseEvent): number[] {
     const rect = this.canvas.nativeElement.getBoundingClientRect();
-    return {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top
-    };
-  }
-
-  /**
-   * Clears the canvas and draws the markers.
-   */
-  private draw() {
-    window.setTimeout(() => {
-      const canvas: HTMLCanvasElement = this.canvas.nativeElement;
-      const container: HTMLDivElement = this.container.nativeElement;
-      const image: HTMLImageElement = this.image.nativeElement;
-      const height = image.clientHeight;
-      const width = image.clientWidth;
-      this.renderer.setElementAttribute(canvas, 'height', `${height}`);
-      this.renderer.setElementAttribute(canvas, 'width', `${width}`);
-      this.renderer.setElementStyle(container, 'height', `${height}px`);
-      const context = canvas.getContext('2d');
-      context.clearRect(0, 0, width, height);
-      this.pixels = [];
-      this.markers.forEach(marker => {
-        this.pixels.push(this.markerToPixel(marker));
-      });
-      if (this.marker) {
-        this.pixel = this.markerToPixel(this.marker);
-      }
-      this.pixels.forEach((pixel, index) => {
-        if (this.markerActive === index) {
-          this.drawMarker(pixel, 'active');
-        } else if (this.markerHover === index) {
-          this.drawMarker(pixel, 'hover');
-        } else {
-          this.drawMarker(pixel);
-        }
-      });
-      if (this.pixel) {
-        this.drawMarker(this.pixel, 'active');
-      }
-    }, 1);
+    return [
+      event.clientX - rect.left,
+      event.clientY - rect.top
+    ];
   }
 
   /**
    * Draw a marker.
    */
-  private drawMarker(pixel: Position, type?: string) {
+  private drawMarker(pixel: number[], type?: string): void {
     const context = this.canvas.nativeElement.getContext('2d');
     context.beginPath();
-    context.arc(pixel.x, pixel.y, this.markerRadius, 0, 2 * Math.PI);
+    context.arc(pixel[0], pixel[1], this.markerRadius, 0, 2 * Math.PI);
     switch (type) {
       case 'active':
         context.fillStyle = 'rgba(255, 0, 0, 0.6)';
@@ -208,61 +146,85 @@ export class ImgMapComponent {
   /**
    * Check if a position is inside a marker.
    */
-  private insideMarker(pixel: Position, pos: Position) {
+  private insideMarker(pixel: number[], coordinate: number[]): boolean {
     return Math.sqrt(
-      (pos.x - pixel.x) * (pos.x - pixel.x)
-      + (pos.y - pixel.y) * (pos.y - pixel.y)
+      (coordinate[0] - pixel[0]) * (coordinate[0] - pixel[0])
+      + (coordinate[1] - pixel[1]) * (coordinate[1] - pixel[1])
     ) < this.markerRadius;
   }
 
   /**
    * Convert a percentage position to a pixel position.
    */
-  private markerToPixel(marker: Position): Position {
+  private markerToPixel(marker: number[]): number[] {
     const image: HTMLImageElement = this.image.nativeElement;
-    return {
-      x: (image.clientWidth / 100) * marker.x,
-      y: (image.clientHeight / 100) * marker.y
-    };
+    return [
+      (image.clientWidth / 100) * marker[0],
+      (image.clientHeight / 100) * marker[1]
+    ];
   }
 
   /**
    * Convert a pixel position to a percentage position.
    */
-  private pixelToMarker(pixel: Position) {
+  private pixelToMarker(pixel: number[]): number[] {
     const image: HTMLImageElement = this.image.nativeElement;
-    return {
-      x: (pixel.x / image.clientWidth) * 100,
-      y: (pixel.y / image.clientHeight) * 100
-    };
+    return [
+      (pixel[0] / image.clientWidth) * 100,
+      (pixel[1] / image.clientHeight) * 100
+    ];
   }
 
   /**
    * Sets the new marker position.
    */
-  private mark(pixel: Position) {
-    this.pixel = pixel;
-    this.marker = this.pixelToMarker(pixel);
+  private mark(pixel: number[]): void {
+    this.markerActive = this.markers.length;
+    this.markers.push(this.pixelToMarker(pixel));
     this.draw();
-    this.markEvent.emit(this.marker);
+    this.markEvent.emit(this.markers[this.markerActive]);
   }
 
   /**
    * Sets the marker pixel positions.
    */
-  private setPixels() {
+  private setPixels(): void {
     this.pixels = [];
     this.markers.forEach(marker => {
       this.pixels.push(this.markerToPixel(marker));
     });
   }
 
-  public onClick(event: MouseEvent) {
+  /**
+   * Clears the canvas and draws the markers.
+   */
+  draw(): void {
+    const canvas: HTMLCanvasElement = this.canvas.nativeElement;
+    const container: HTMLDivElement = this.container.nativeElement;
+    const image: HTMLImageElement = this.image.nativeElement;
+    const height = image.clientHeight;
+    const width = image.clientWidth;
+    this.renderer.setElementAttribute(canvas, 'height', `${height}`);
+    this.renderer.setElementAttribute(canvas, 'width', `${width}`);
+    this.renderer.setElementStyle(container, 'height', `${height}px`);
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, width, height);
+    this.setPixels();
+    this.pixels.forEach((pixel, index) => {
+      if (this.markerActive === index) {
+        this.drawMarker(pixel, 'active');
+      } else if (this.markerHover === index) {
+        this.drawMarker(pixel, 'hover');
+      } else {
+        this.drawMarker(pixel);
+      }
+    });
+  }
+
+  onClick(event: MouseEvent): void {
     const cursor = this.cursor(event);
-    if (this.markEvent.observers.length) {
-      this.mark(cursor);
-    } else if (this.changeEvent.observers.length) {
-      var active = false;
+    var active = false;
+    if (this.changeEvent.observers.length) {
       var change = false;
       this.pixels.forEach((pixel, index) => {
         if (this.insideMarker(pixel, cursor)) {
@@ -279,14 +241,16 @@ export class ImgMapComponent {
       }
       if (change) this.change();
     }
+    if (!active && this.markEvent.observers.length) {
+      this.mark(cursor);
+    }
   }
 
-  public onLoad(event: UIEvent) {
-    this.setPixels();
+  onLoad(event: UIEvent): void {
     this.draw();
   }
 
-  public onMousemove(event: MouseEvent) {
+  onMousemove(event: MouseEvent): void {
     if (this.changeEvent.observers.length) {
       const cursor = this.cursor(event);
       var hover = false;
@@ -308,14 +272,14 @@ export class ImgMapComponent {
     }
   }
 
-  public onMouseout(event: MouseEvent) {
+  onMouseout(event: MouseEvent): void {
     if (this.markerHover) {
       this.markerHover = null;
       this.draw();
     }
   }
 
-  public onResize(event: UIEvent) {
+  onResize(event: UIEvent): void {
     this.draw();
   }
 
